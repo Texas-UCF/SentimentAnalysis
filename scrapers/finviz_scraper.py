@@ -61,6 +61,6 @@ def clean_headlines(headline_data):
 
 
 if __name__ == '__main__':
-	tickers = get_tickers()[:4]
+	tickers = get_tickers()
 	df = headlines_to_df(parse_headlines(tickers))
-	df.to_csv('../headlines.csv', index=False)
+	df.to_csv('../data/headlines.csv', index=False)
