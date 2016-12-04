@@ -2,6 +2,7 @@ import pandas as pd
 import datetime as dt 
 from pandas_datareader import data, wb
 
+
 get_tickers = lambda: [ticker[:-1] for ticker in open('../data/SP500_Tickers.txt').read().split('\n')]
 get_text_data = lambda: pd.read_csv('../data/headlines.csv')
 
@@ -19,8 +20,9 @@ def label_data(stock_df, day_interval, threshold=0.0):
 	pass
 
 
-def label_data_eod(stock_df):
-	pass
+def label_data_eod(stock_df, threshold=0.0):
+	return_calc = lambda row: (row['Close'] - row['Open']) / row['Open']
+	stock_df['sentiment'] = stock_df.apply(return_calc, axis=1)
 
 
 if __name__ == '__main__':

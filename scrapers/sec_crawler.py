@@ -10,6 +10,7 @@ def scraper_run(data_path):
         print row 
         filing_scrape(row['Quote'], row['CIK'], '10-K', row['priorto(YYYYMMDD)'], row['Count'])
 
+
 def filing_scrape(company_code, cik, filing_type, priorto, count):
     # Get filing results from SEC edgar API  
     base_url = "http://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK="+str(cik)+"&type="+str(filing_type)+"&dateb="+str(priorto)+"&owner=exclude&output=xml&count="+str(count)
@@ -32,6 +33,7 @@ def get_report_links(edgar_doc):
         filing_links += [link.get_text()]
     return filing_links
 
+
 def get_filing_link(report_link, filing_type):
     # html parse the report for the actual filing
     report_html = url.urlopen(report_link).read()
@@ -48,6 +50,7 @@ def get_filing_link(report_link, filing_type):
         # Return the FIRST link with the document type that matches the one we're looking for 
         if len(text_cols) > 3 and unicode(filing_type) in text_cols[3]:
             return "http://www.sec.gov" + str(cols[2].find('a').get('href'))
+
 
 def download(company_code, filing_link):
     print filing_link 
@@ -67,5 +70,5 @@ def download(company_code, filing_link):
 
 if __name__ == '__main__':
     # Example run 
-    scraper_run('WMTdata.txt')
+    scraper_run('../data/WMTdata.txt')
     
