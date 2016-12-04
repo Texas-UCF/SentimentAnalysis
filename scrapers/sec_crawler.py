@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 import re
 import datetime as dt
+import pandas as pd 
 
 stop = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()

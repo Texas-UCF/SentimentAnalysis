@@ -31,7 +31,9 @@ def label_data(end_df, day_interval, threshold=0.0):
 
 	join_df = start_df.merge(end_df, on=['ind', 'ticker'], suffixes=['_end','_start'])
 	join_df['sentiment'] = join_df.apply(return_calc, axis=1) > threshold
-	return join_df[['Date_start', 'ticker', 'sentiment']]
+	join_df = join_df[['Date_start', 'ticker', 'sentiment']]
+	join_df.columns = ['date', 'ticker', 'sentiment']
+	return join_df
 
 
 def label_data_eod(stock_df, threshold=0.0):
@@ -40,8 +42,17 @@ def label_data_eod(stock_df, threshold=0.0):
 	return stock_df
 
 
+def join_to_text(text_df, label_df):
+	text_df['date'] = pd.to_datetime(text_df['date'])
+	label_df['date'] = pd.to_datetime(label_df['date'])
+	return text_df.merge(label_df, on=['date', 'ticker'])
+
+
 if __name__ == '__main__':
 	# df = get_data(get_tickers(), get_text_data())
 	# df.to_csv('../data/stock_data.csv')
 	df = pd.read_csv('../data/stock_data.csv')
-	print label_data(df, 7)
+	text_df = get_text_data()
+	label_df = label_data(df, 7)
+	labeled_text = join_to_text(text_df, label_df)
+	labeled_text.to_csv('../data/text_sentiment.csv')
