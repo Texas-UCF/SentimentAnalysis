@@ -20,7 +20,8 @@ headlines_to_df = lambda headline_data: pd.DataFrame(headline_data)
 
 def clean_sentence(sentence):
 	sentence = re.sub(r'\[(.*?)\]', '', sentence)
-	return ' '.join([word.lower() for word in re.split('\W+', sentence) if word not in stop and len(word) > 0])
+	sentence = re.sub(r'[^A-Za-z ]', ' ', sentence)
+	return ' '.join([word.lower() for word in re.split('\W+', sentence) if word not in stop and len(word) > 1])
 
 
 def parse_headlines(tickers, clean=True):
@@ -49,7 +50,7 @@ def parse_rows(rows, ticker):
 		# Get Date
 		ts = cols[0].text.split()
 		if len(ts) == 2: mon, day, year = tuple(ts[0].split('-'))
-		headline_row['date'] = dt.datetime(int(year), month_abbrs[mon], int(day))
+		headline_row['date'] = dt.datetime(2000 + int(year), month_abbrs[mon], int(day))
 
 		# Get Headline and Ticker
 		headline_row['text'] = cols[1].find('a').text
