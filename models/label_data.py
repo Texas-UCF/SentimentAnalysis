@@ -39,6 +39,8 @@ def label_data(end_df, day_interval, threshold=0.0):
 def label_data_eod(stock_df, threshold=0.0):
 	return_calc = lambda row: (row['Close'] - row['Open']) / row['Open']
 	stock_df['sentiment'] = stock_df.apply(return_calc, axis=1) > threshold
+	stock_df = stock_df[['Date','ticker','sentiment']]
+	stock_df.columns = ['date', 'ticker', 'sentiment']
 	return stock_df
 
 
@@ -53,6 +55,6 @@ if __name__ == '__main__':
 	# df.to_csv('../data/stock_data.csv')
 	df = pd.read_csv('../data/stock_data.csv')
 	text_df = get_text_data()
-	label_df = label_data(df, 7)
+	label_df = label_data_eod(df)
 	labeled_text = join_to_text(text_df, label_df)
 	labeled_text.to_csv('../data/text_sentiment.csv')
