@@ -1,4 +1,4 @@
-import pandas as pd 
+import pandas as pd
 import urllib2 as url
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
@@ -34,7 +34,7 @@ def parse_headlines(tickers, clean=True):
 			rows = table.find_all('tr')
 			headline_data += parse_rows(rows, ticker)
 		except:
-			continue 
+			continue
 	if clean: clean_headlines(headline_data)
 	return headline_data
 
@@ -45,14 +45,14 @@ def parse_rows(rows, ticker):
 	for row in rows:
 		headline_row = dict()
 		cols = row.find_all('td')
-		
+
 		# Get Date
 		ts = cols[0].text.split()
 		if len(ts) == 2: mon, day, year = tuple(ts[0].split('-'))
 		headline_row['date'] = dt.datetime(int(year), month_abbrs[mon], int(day))
 
 		# Get Headline and Ticker
-		headline_row['text'] = cols[1].find('a').text 
+		headline_row['text'] = cols[1].find('a').text
 		headline_row['ticker'] = ticker
 
 		headline_data.append(headline_row)
@@ -61,8 +61,8 @@ def parse_rows(rows, ticker):
 
 
 def clean_headlines(headline_data):
-	for headline_row in headline_data: 
-		headline_row['text'] = clean_sentence(headline_row['text']) 
+	for headline_row in headline_data:
+		headline_row['text'] = clean_sentence(headline_row['text'])
 
 
 if __name__ == '__main__':
