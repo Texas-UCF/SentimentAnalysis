@@ -21,7 +21,9 @@ headlines_to_df = lambda headline_data: pd.DataFrame(headline_data)
 def clean_sentence(sentence):
 	sentence = re.sub(r'\[(.*?)\]', '', sentence)
 	sentence = re.sub(r'[^A-Za-z ]', ' ', sentence)
-	return ' '.join([word.lower() for word in re.split('\W+', sentence) if word not in stop and len(word) > 1])
+	return ' '.join([lemmatizer.lemmatize(word.lower()) 
+		for word in re.split('\W+', sentence) 
+		if word not in stop and len(word) > 1])
 
 
 def parse_headlines(tickers, clean=True):

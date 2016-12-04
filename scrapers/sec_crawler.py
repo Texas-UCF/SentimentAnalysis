@@ -23,7 +23,9 @@ def scraper_run(data_path):
 
 def clean_sentence(sentence):
 	sentence = re.sub(r'[^a-zA-Z\-\' ]', '', sentence)
-	return ' '.join([word.lower() for word in re.split('\W+', sentence) if word not in stop and len(word) > 1])
+	return ' '.join([lemmatizer.lemmatize(word.lower())
+		for word in re.split('\W+', sentence) 
+		if word not in stop and len(word) > 1])
 
 def filing_scrape(ticker, cik, filing_type, priorto, count):
     # Get filing results from SEC edgar API
