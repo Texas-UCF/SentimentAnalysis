@@ -18,7 +18,7 @@ def scraper_run(data_path):
     data = []
     for row in reader:
         data += filing_scrape(row['Quote'], row['CIK'], '10-K', row['priorto(YYYYMMDD)'], row['Count'])
-    df = data_to_df(data)
+    df = reports_to_df(data)
     df.to_csv('../data/sec_filings.csv', index=False)
 
 def clean_sentence(sentence):
