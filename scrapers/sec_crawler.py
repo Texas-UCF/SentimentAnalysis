@@ -21,7 +21,7 @@ def scraper_run(data_path):
     df.to_csv('../data/sec_filings.csv', index=False)
 
 def clean_sentence(sentence):
-	sentence = re.sub(r'[^a-zA-Z-\' ]', '', sentence)
+	sentence = re.sub(r'[^a-zA-Z\-\' ]', '', sentence)
 	return ' '.join([word.lower() for word in re.split('\W+', sentence) if word not in stop and len(word) > 1])
 
 def filing_scrape(ticker, cik, filing_type, priorto, count):
