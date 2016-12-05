@@ -2,6 +2,7 @@ import spacy
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfTransformer
 import pandas as pd 
+import numpy as np 
 
 nlp = spacy.load('en')
 get_labeled_text = lambda : pd.read_csv('../data/text_sentiment.csv')
@@ -14,7 +15,6 @@ def sparse_td_matrix(df):
 		dok[i] = dict()
 		for word in row['text'].split():
 			text_to_index[word] = text_to_index.get(word, len(text_to_index))
-			# print text_to_index
 			dok[i][text_to_index[word]] = dok[i].get(text_to_index[word], 0) + 1
 	coords = [(term, doc, count) for doc, term_dict in dok.items() for term, count in term_dict.items()]
 	comp_list = zip(*coords)
@@ -25,13 +25,10 @@ def tfidf_mat(mat):
 	return transformer.fit_transform(mat)
 
 def label_mat(mat, df):
-	coords = [(mat.shape[0], i, data) for i, data in enumerate(df['sentiment'])]
-	labels = zip(*coords)
-	label_col = csr_matrix(labels)
-	print label_col.shape
-	hstack([mat, label_col])
+	labels = np.resize(np.array(df['sentiment']), (len(df['sentiment']), 1))
+	return hstack([mat.T, labels])
 
 if __name__ == '__main__':
 	text_df = get_labeled_text()
 	mat = sparse_td_matrix(text_df)
-	# print label_mat(mat, text_df)
+	print label_mat(mat, text_df).shape
