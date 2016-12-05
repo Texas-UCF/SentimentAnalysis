@@ -1,7 +1,6 @@
 from zipline.api import order, record, symbol, get_datetime
 import pandas as pd
 from datetime import datetime
-import
 
 #TODO: What is a good threshold?
 LONG_THRESH = 5
@@ -11,8 +10,8 @@ def initialize(context):
     headlines = pd.read_csv('data/headlines.csv').sort_values('date')
     headlines['date'] = pd.to_datetime(headlines['date'])
     context.headlines = headlines
-    context.long_thresh = long_thresh
-    context.short_thresh = short_thresh
+    context.long_thresh = LONG_THRESH
+    context.short_thresh = SHORT_THRESH
 
 def handle_data(context, data):
     now = get_datetime()
@@ -22,14 +21,14 @@ def handle_data(context, data):
     current_headlines = []
     for i in range(0, len(context.headlines)):
         if(today == context.headlines.iloc[i]['date']):
-            current_headlines.append((context.headlines.iloc[i]['ticker'], context.headlies.iloc[i]['text']
+            current_headlines.append((context.headlines.iloc[i]['ticker'], context.headlines.iloc[i]['text']))
 
+    print current_headlines
     # Calculate sentiment
     sentiment = dict()
     for headline in current_headlines:
         ticker = headline[0]
         text = headline[1]
-
         #TODO: Get score from classifier
         score = -1
         if ticker in sentiment.keys():
@@ -39,11 +38,11 @@ def handle_data(context, data):
 
     # Long/Short stocks based on sentiment
     for ticker in sentiment.keys():
-
         #TODO: Order stocks
         if sentiment[ticker] > context.long_thresh:
             #long stocks
-        else if: sentiment[ticker] < context.short_thresh:
+            print "long " + ticker
+        if sentiment[ticker] < context.short_thresh:
             #short stocks
-        else:
-            continue
+            print "short " + ticker
+    return
