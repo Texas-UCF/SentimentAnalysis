@@ -4,6 +4,9 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.decomposition import TruncatedSVD, NMF
 import pandas as pd 
 import numpy as np 
+from gensim.models import word2vec as w2v
+import gensim
+import pickle as pkl
 
 nlp = spacy.load('en')
 get_labeled_text = lambda : pd.read_csv('../data/text_sentiment.csv')
@@ -42,7 +45,24 @@ def label_mat(mat, df):
 	return hstack([mat, labels])
 
 
+def train_w2v_model(df):
+	model = w2v.Word2Vec(df['text'])
+	print model.vocab
+	model.save('w2v_model.bin')
+
+
+def train_on_google_model(df):
+	model = gensim.models.Word2Vec.load_word2vec_format('../data/GoogleNews-vectors-negative300.bin', binary=True)  
+	doc_vectors = []
+	for i, row in df.iterrows():
+		doc_vector = np.average([model[word] for word in row['text'].split() if word in model], axis=0)
+		doc_vectors.append(doc_vector)
+	return np.vstack(tuple(doc_vectors))
+
 if __name__ == '__main__':
 	text_df = get_labeled_text()
-	mat = tfidf_mat(count_vectorizer(text_df))
-	label_mat(mat, text_df)
+	# mat = tfidf_mat(count_vectorizer(text_df))
+	# label_mat(mat, text_df)
+	# train_w2v_model(text_df)
+	google_matrix = train_on_google_model(text_df)
+	pkl.dump(google_matrix, open('../data/google_matrix.pkl', 'w'))

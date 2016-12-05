@@ -8,11 +8,13 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics.pairwise import cosine_similarity
 from word_embedding import get_labeled_text, count_vectorizer, tfidf_mat, reduce_mat, reduce_mat_nonneg
 import numpy as np 
+import pickle as pkl 
 
 text_df = get_labeled_text()
 labels = np.array(text_df['sentiment'])
 doc_term_mat = tfidf_mat(count_vectorizer(text_df))
 lsa_mat = reduce_mat(doc_term_mat)
+google_matrix = pkl.load(open('../data/google_matrix.pkl', 'rb'))
 
 def validate_nb_model(mat=doc_term_mat):
 	model = MultinomialNB()
@@ -60,6 +62,9 @@ class Rocchio(object):
 
 
 if __name__ == '__main__':
+	print "Rocchio W2V"
+	validate_rocchio_model(google_matrix)
+
 	print "NB"
 	validate_nb_model()
 
