@@ -6,11 +6,11 @@ from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 import re
 import datetime as dt
-import pandas as pd 
+import pandas as pd
 
 stop = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
-reports_to_df = lambda reports: pd.DataFrame(reports)
+data_to_df = lambda reports: pd.DataFrame(data)
 
 def scraper_run(data_path):
     # Run scraper for each row in the dataset
@@ -24,7 +24,7 @@ def scraper_run(data_path):
 def clean_sentence(sentence):
 	sentence = re.sub(r'[^a-zA-Z\-\' ]', '', sentence)
 	return ' '.join([lemmatizer.lemmatize(word.lower())
-		for word in re.split('\W+', sentence) 
+		for word in re.split('\W+', sentence)
 		if word not in stop and len(word) > 1])
 
 def filing_scrape(ticker, cik, filing_type, priorto, count):
@@ -48,7 +48,6 @@ def get_report_links(edgar_doc):
     for link in soup.find_all('filingHREF'):
         filing_links += [link.get_text()]
     return filing_links
-
 
 def get_filing_link(ticker, report_link, filing_type):
     filing = dict()
@@ -76,18 +75,11 @@ def get_filing_link(ticker, report_link, filing_type):
         if len(text_cols) > 3 and unicode(filing_type) in text_cols[3]:
             filing_link = "http://www.sec.gov" + str(cols[2].find('a').get('href'))
             filing['text'] = clean_sentence(download(ticker, filing_link, 'sec_filings/'))
+            print filing
             return filing
 
 def download(ticker, filing_link, root_dir):
     print(filing_link)
-
-    # Create directory for all filings
-    if not os.path.exists('sec_filings'):
-            os.mkdir('sec_filings')
-
-    # Create the company directory
-    if not os.path.exists(root_dir + ticker):
-        os.mkdir(root_dir + ticker)
 
     # Use the same file name as the one on edgar
     file_name = filing_link[filing_link.rindex('/')+1:]
@@ -95,13 +87,8 @@ def download(ticker, filing_link, root_dir):
     soup = BeautifulSoup(file_text, 'html.parser')
     data = clean_sentence(" ".join(soup.stripped_strings))
 
-    # Create, write, and close out the file
-    f = open(root_dir + ticker + '/' + file_name, 'w')
-    f.write(data)
-    f.close()
-
     return data
 
 if __name__ == '__main__':
     # Example run
-    scraper_run('../data/WMTdata.txt')
+    scraper_run('../data/WMTdata2.txt')
