@@ -24,7 +24,7 @@ def validate_nb_model(mat=doc_term_mat):
 		print model.score(mat[test], labels[test])
 
 
-def validate_rocchio_model(mat=lsa_mat):
+def validate_rocchio_model(mat=lsa_mat, subtract=False):
 	model = Rocchio()
 	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
 	for train, test in kf:
@@ -41,12 +41,20 @@ def validate_knn_model(mat=lsa_mat):
 
 
 class Rocchio(object):
-	def __init__(self):
+	def __init__(self, subtract=False):
 		super(Rocchio, self).__init__()
+		self.subtract = subtract
 
 	def fit(self, X, y):
-		self.pos = normalize(np.sum(X[y==True], axis=0).reshape(1,-1))
-		self.neg = normalize(np.sum(X[y==False], axis=0).reshape(1,-1))
+		if self.subtract:
+			self.pos = np.sum(X[y==True]).reshape(1,-1)
+			self.pos += np.sum(-1 * X[y==False]).reshape(1,-1)
+			self.neg = np.sum(X[y==False]).reshape(1,-1)
+			self.neg += np.sum(X[y==True]).reshape(1,-1)
+
+		else:
+			self.pos = normalize(np.sum(X[y==True], axis=0).reshape(1,-1))
+			self.neg = normalize(np.sum(X[y==False], axis=0).reshape(1,-1))
 
 		self.pos = normalize(self.pos)
 		self.neg = normalize(self.neg)
@@ -63,7 +71,7 @@ class Rocchio(object):
 
 if __name__ == '__main__':
 	print "Rocchio W2V"
-	validate_rocchio_model(google_matrix)
+	validate_rocchio_model(google_matrix, subtract=True)
 
 	print "NB"
 	validate_nb_model()
