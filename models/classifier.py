@@ -5,8 +5,8 @@ from sklearn.svm import SVC
 from sklearn.cross_validation import KFold
 from sklearn.preprocessing import normalize
 from sklearn.neighbors import KNeighborsClassifier
-from word_embedding import get_labeled_text, sparse_td_matrix, tfidf_mat, reduce_mat, reduce_mat_nonneg
 from sklearn.metrics.pairwise import cosine_similarity
+from word_embedding import get_labeled_text, sparse_td_matrix, tfidf_mat, reduce_mat, reduce_mat_nonneg
 import numpy as np 
 
 
@@ -55,24 +55,27 @@ class Rocchio(object):
 		super(Rocchio, self).__init__()
 
 	def fit(self, X, y):
-		self.pos = np.average(X[y==True], axis=0).reshape(1,-1)
-		self.neg = np.average(X[y==False], axis=0).reshape(1,-1)
+		self.pos = normalize(np.sum(X[y==True], axis=0).reshape(1,-1))
+		self.neg = normalize(np.sum(X[y==False], axis=0).reshape(1,-1))
+
+		self.pos = normalize(self.pos)
+		self.neg = normalize(self.neg)
 
 	def score(self, X, y):
-		pos_sim = np.dot(X, self.pos.T) #/ (np.linalg.norm(X, axis=1) * np.linalg.norm(self.pos, axis=1))
-		neg_sim = np.dot(X, self.neg.T) #/ (np.linalg.norm(X, axis=1) * np.linalg.norm(self.neg, axis=1))
+		normX = normalize(X)
+		pos_sim = np.dot(normX, self.pos.T)
+		neg_sim = np.dot(normX, self.neg.T)
 		prediction = pos_sim > neg_sim
 		compare = prediction.T==y.T
 		score = np.sum(compare) / compare.shape[1]
 		return score
 
-
 if __name__ == '__main__':
-	# print "NB"
-	# validate_nb_model()
+	print "NB"
+	validate_nb_model()
 
-	# print "Rocchio"
-	# validate_rocchio_model()
+	print "Rocchio"
+	validate_rocchio_model()
 
 	print "KNN"
 	validate_knn_model()
