@@ -20,15 +20,18 @@ def sparse_td_matrix(df):
 	comp_list = zip(*coords)
 	return csr_matrix((comp_list[2],(comp_list[0], comp_list[1])))
 
+
 def tfidf_mat(mat):
 	transformer = TfidfTransformer()
 	return transformer.fit_transform(mat)
+
 
 def label_mat(mat, df):
 	labels = np.resize(np.array(df['sentiment']), (len(df['sentiment']), 1))
 	return hstack([mat.T, labels])
 
+
 if __name__ == '__main__':
 	text_df = get_labeled_text()
-	mat = sparse_td_matrix(text_df)
-	print label_mat(mat, text_df).shape
+	mat = tfidf_mat(sparse_td_matrix(text_df))
+	label_mat(mat, text_df)
