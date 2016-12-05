@@ -1,17 +1,21 @@
+from __future__ import division
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.cross_validation import KFold
-from word_embedding import get_labeled_text, sparse_td_matrix, tfidf_mat, reduce_mat
+from sklearn.preprocessing import normalize
+from sklearn.neighbors import KNeighborsClassifier
+from word_embedding import get_labeled_text, sparse_td_matrix, tfidf_mat, reduce_mat, reduce_mat_nonneg
+from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np 
 
-model = MultinomialNB()
 
-def validate_model():
+def validate_nb_model():
+	model = MultinomialNB()
 	text_df = get_labeled_text()
 
 	# mat = sparse_td_matrix(text_df)
 	mat = tfidf_mat(sparse_td_matrix(text_df))
-	# mat = reduce_mat(tfidf_mat(sparse_td_matrix(text_df)))
-
 	labels = np.array(text_df['sentiment'])
 	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
 
@@ -19,5 +23,56 @@ def validate_model():
 		model.fit(mat[train], labels[train])
 		print model.score(mat[test], labels[test])
 
+
+def validate_rocchio_model():
+	model = Rocchio()
+	text_df = get_labeled_text()
+
+	mat = reduce_mat(tfidf_mat(sparse_td_matrix(text_df)))
+	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
+	labels = np.array(text_df['sentiment'])
+
+	for train, test in kf:
+		model.fit(mat[train], labels[train])
+		print model.score(mat[test], labels[test])
+
+
+def validate_knn_model():
+	model = KNeighborsClassifier()
+	text_df = get_labeled_text()
+
+	mat = reduce_mat(tfidf_mat(sparse_td_matrix(text_df)))
+	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
+	labels = np.array(text_df['sentiment'])
+
+	for train, test in kf:
+		model.fit(mat[train], labels[train])
+		print model.score(mat[test], labels[test])
+
+
+class Rocchio(object):
+	def __init__(self):
+		super(Rocchio, self).__init__()
+
+	def fit(self, X, y):
+		self.pos = np.average(X[y==True], axis=0).reshape(1,-1)
+		self.neg = np.average(X[y==False], axis=0).reshape(1,-1)
+
+	def score(self, X, y):
+		pos_sim = np.dot(X, self.pos.T) #/ (np.linalg.norm(X, axis=1) * np.linalg.norm(self.pos, axis=1))
+		neg_sim = np.dot(X, self.neg.T) #/ (np.linalg.norm(X, axis=1) * np.linalg.norm(self.neg, axis=1))
+		prediction = pos_sim > neg_sim
+		compare = prediction.T==y.T
+		score = np.sum(compare) / compare.shape[1]
+		return score
+
+
 if __name__ == '__main__':
-	validate_model()
+	# print "NB"
+	# validate_nb_model()
+
+	# print "Rocchio"
+	# validate_rocchio_model()
+
+	print "KNN"
+	validate_knn_model()

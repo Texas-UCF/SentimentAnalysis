@@ -1,7 +1,7 @@
 import spacy 
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, NMF
 import pandas as pd 
 import numpy as np 
 
@@ -29,6 +29,11 @@ def tfidf_mat(mat):
 
 def reduce_mat(mat):
 	lsa = TruncatedSVD(n_components=100)
+	return lsa.fit_transform(mat)
+
+
+def reduce_mat_nonneg(mat):
+	lsa = NMF(n_components=100)
 	return lsa.fit_transform(mat)
 
 
