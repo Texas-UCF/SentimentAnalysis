@@ -1,6 +1,7 @@
 from zipline.api import order, record, symbol, get_datetime
 import pandas as pd
 from datetime import datetime
+import
 
 def initialize(context):
     headlines = pd.read_csv('data/headlines.csv').sort_values('date')
@@ -9,9 +10,11 @@ def initialize(context):
 
 def handle_data(context, data):
     sentiment = dict()
-    print list(context.headlines['date'])[0]
     now = get_datetime()
     today = datetime(now.year, now.month, now.day, 0, 0)
-    print today
-    for headline in list(context.headlines[context.headlines['date'] == today]):
-        print headline
+    current_headlines = []
+    for i in range(0, len(context.headlines)):
+        if(today == context.headlines.iloc[i]['date']):
+            current_headlines.append((context.headlines.iloc[i]['ticker'], context.headlies.iloc[i]['text']
+    for headline in current_headlines:
+
