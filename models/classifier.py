@@ -7,8 +7,8 @@ from sklearn.preprocessing import normalize
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics.pairwise import cosine_similarity
 from word_embedding import get_labeled_text, count_vectorizer, tfidf_mat, reduce_mat, reduce_mat_nonneg
-import numpy as np 
-import pickle as pkl 
+import numpy as np
+import pickle as pkl
 
 text_df = get_labeled_text()
 labels = np.array(text_df['sentiment'])
