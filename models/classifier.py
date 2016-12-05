@@ -50,7 +50,7 @@ class Rocchio(object):
 			self.pos = np.sum(X[y==True]).reshape(1,-1)
 			self.pos += np.sum(-1 * X[y==False]).reshape(1,-1)
 			self.neg = np.sum(X[y==False]).reshape(1,-1)
-			self.neg += np.sum(X[y==True]).reshape(1,-1)
+			self.neg += np.sum(-1 * X[y==True]).reshape(1,-1)
 
 		else:
 			self.pos = normalize(np.sum(X[y==True], axis=0).reshape(1,-1))
