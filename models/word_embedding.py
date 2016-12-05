@@ -8,8 +8,8 @@ import numpy as np
 nlp = spacy.load('en')
 get_labeled_text = lambda : pd.read_csv('../data/text_sentiment.csv')
 
-# Encode in Term-Doc matrix (data,(row,col))
-def sparse_td_matrix(df):
+# Encode in Doc-Term matrix (data,(row,col))
+def count_vectorizer(df):
 	text_to_index = dict()
 	dok = dict()
 	for i, row in df.iterrows():
@@ -44,5 +44,5 @@ def label_mat(mat, df):
 
 if __name__ == '__main__':
 	text_df = get_labeled_text()
-	mat = tfidf_mat(sparse_td_matrix(text_df))
+	mat = tfidf_mat(count_vectorizer(text_df))
 	label_mat(mat, text_df)

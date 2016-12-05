@@ -6,21 +6,17 @@ from sklearn.cross_validation import KFold
 from sklearn.preprocessing import normalize
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics.pairwise import cosine_similarity
-from word_embedding import get_labeled_text, sparse_td_matrix, tfidf_mat, reduce_mat, reduce_mat_nonneg
+from word_embedding import get_labeled_text, count_vectorizer, tfidf_mat, reduce_mat, reduce_mat_nonneg
 import numpy as np 
 
 text_df = get_labeled_text()
 labels = np.array(text_df['sentiment'])
-doc_term_mat = tfidf_mat(sparse_td_matrix(text_df))
+doc_term_mat = tfidf_mat(count_vectorizer(text_df))
 lsa_mat = reduce_mat(doc_term_mat)
 
 def validate_nb_model(mat=doc_term_mat):
 	model = MultinomialNB()
-
-	# mat = sparse_td_matrix(text_df)
-	
 	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
-
 	for train, test in kf:
 		model.fit(mat[train], labels[train])
 		print model.score(mat[test], labels[test])
