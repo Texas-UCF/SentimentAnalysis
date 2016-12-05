@@ -9,14 +9,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 from word_embedding import get_labeled_text, sparse_td_matrix, tfidf_mat, reduce_mat, reduce_mat_nonneg
 import numpy as np 
 
+text_df = get_labeled_text()
+labels = np.array(text_df['sentiment'])
+doc_term_mat = tfidf_mat(sparse_td_matrix(text_df))
+lsa_mat = reduce_mat(doc_term_mat)
 
-def validate_nb_model():
+def validate_nb_model(mat=doc_term_mat):
 	model = MultinomialNB()
-	text_df = get_labeled_text()
 
 	# mat = sparse_td_matrix(text_df)
-	mat = tfidf_mat(sparse_td_matrix(text_df))
-	labels = np.array(text_df['sentiment'])
+	
 	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
 
 	for train, test in kf:
@@ -24,27 +26,17 @@ def validate_nb_model():
 		print model.score(mat[test], labels[test])
 
 
-def validate_rocchio_model():
+def validate_rocchio_model(mat=lsa_mat):
 	model = Rocchio()
-	text_df = get_labeled_text()
-
-	mat = reduce_mat(tfidf_mat(sparse_td_matrix(text_df)))
 	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
-	labels = np.array(text_df['sentiment'])
-
 	for train, test in kf:
 		model.fit(mat[train], labels[train])
 		print model.score(mat[test], labels[test])
 
 
-def validate_knn_model():
+def validate_knn_model(mat=lsa_mat):
 	model = KNeighborsClassifier()
-	text_df = get_labeled_text()
-
-	mat = reduce_mat(tfidf_mat(sparse_td_matrix(text_df)))
 	kf = KFold(mat.shape[0], n_folds=10, shuffle=True)
-	labels = np.array(text_df['sentiment'])
-
 	for train, test in kf:
 		model.fit(mat[train], labels[train])
 		print model.score(mat[test], labels[test])
@@ -69,6 +61,7 @@ class Rocchio(object):
 		compare = prediction.T==y.T
 		score = np.sum(compare) / compare.shape[1]
 		return score
+
 
 if __name__ == '__main__':
 	print "NB"
