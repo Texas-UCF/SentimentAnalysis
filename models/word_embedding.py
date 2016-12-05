@@ -1,6 +1,7 @@
 import spacy 
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.decomposition import TruncatedSVD
 import pandas as pd 
 import numpy as np 
 
@@ -18,17 +19,22 @@ def sparse_td_matrix(df):
 			dok[i][text_to_index[word]] = dok[i].get(text_to_index[word], 0) + 1
 	coords = [(term, doc, count) for doc, term_dict in dok.items() for term, count in term_dict.items()]
 	comp_list = zip(*coords)
-	return csr_matrix((comp_list[2],(comp_list[0], comp_list[1])))
+	return csr_matrix((comp_list[2],(comp_list[0], comp_list[1]))).T
 
 
 def tfidf_mat(mat):
-	transformer = TfidfTransformer()
+	transformer = TfidfTransformer(sublinear_tf=True, use_idf=True)
 	return transformer.fit_transform(mat)
+
+
+def reduce_mat(mat):
+	lsa = TruncatedSVD(n_components=100)
+	return lsa.fit_transform(mat)
 
 
 def label_mat(mat, df):
 	labels = np.resize(np.array(df['sentiment']), (len(df['sentiment']), 1))
-	return hstack([mat.T, labels])
+	return hstack([mat, labels])
 
 
 if __name__ == '__main__':
